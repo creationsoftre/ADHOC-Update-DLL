@@ -1,4 +1,14 @@
-﻿
+﻿<###############################
+Title: Update ClaimsXten Engine.dll
+Author: TW
+Original: 2022_04_12
+Last Updated: 2022_04_12
+	
+
+Overview:
+- Deploys new ClaimsXten Engine.dll for additional logging
+- Vendor created DLL to provide more information around Invalid Transaction ID
+###############################>
 
 #Copy new dll function
 function Copy-New-DLL{
@@ -7,7 +17,7 @@ function Copy-New-DLL{
         $server
     )
 
-    $stagedFile = "\\va01pstodfs003.corp.agp.ads\apps\Local\EMT\COTS\McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\Engine.dll"
+    $stagedFile = "PATH\Engine.dll"
     $tempDir = "\\$server\D$\temp"
 
     try{

@@ -223,8 +223,8 @@ foreach($server in $servers){
     $origLegEngPath = "\\$server\D$\CXT\totalpayment\NTHost\McKesson.TPP.LegacyRuleEngine.dll"
     $ootbLegEngPath = "\\$server\D$\CXT\totalpayment\NTHost\McKesson.TPP.LegacyRuleEngine.dll.OOTB"
     $dir = "\\$server\D$\CXT\totalpayment\NTHost"
-    $stagedEngFile = "\\va01pstodfs003.corp.agp.ads\apps\Local\EMT\COTS\McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\Engine.dll"
-    $stagedLegacyEngFile = "\\va01pstodfs003.corp.agp.ads\apps\Local\EMT\COTS\McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\McKesson.TPP.LegacyRuleEngine.dll"
+    $stagedEngFile = "McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\Engine.dll"
+    $stagedLegacyEngFile = "McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\McKesson.TPP.LegacyRuleEngine.dll"
     $tempDir = "\\$server\D$\temp"
 
     if(Test-Path $dir){

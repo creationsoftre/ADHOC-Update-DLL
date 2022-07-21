@@ -21,7 +21,9 @@ function Make-Backup_of-Existing-DDLS(){
         $ootbEngPath,
         $ootbLegEngPath,
         $origLegEngPath,
-        $origEngPath
+        $origEngPath,
+        $dir,
+        $tempDir
     )
     Write-Host "Making Backup of OOTB Engine.dll & McKesson.TPP.LegacyRuleEngine.dll on $server" -ForegroundColor Cyan
 
@@ -66,7 +68,7 @@ function Make-Backup_of-Existing-DDLS(){
           $response = $(Write-Host "Engine.dll.OOTB and McKesson.TPP.LegacyRuleEngine.dll.OOTB files already exist on $server. Would you like to proceed? " -NoNewline) + $(Write-Host "Type (Y) YES or (N) NO: " -ForegroundColor Yellow -NoNewline; Read-Host)
            switch ($response)
            {
-            Y {Copy-New-DLL -dir $dir -server $server}
+            Y {Place-New-DLLS-To-Path -dir $dir -tempDir $tempDir}
             N {exit;}
             Default {$response}
          }
@@ -84,8 +86,8 @@ function Copy-New-DLL-To-Temp{
     $tempEngineDLL = "$tempDir\Engine.dll"
     $tempLegRuleDLL = "$tempDir\McKesson.TPP.LegacyRuleEngine.dll"
 
+    #copy staged Engine.dll file to temp directory
     try{
-        #copy staged Engine.dll file to temp directory
         Copy-Item $stagedEngFile  -Destination $tempDir -Force
 
         Write-Host "Date: $((Get-Date).ToString()). Status: Engine.dll Successfully copied to $tempDir" -ForegroundColor Green
@@ -101,7 +103,17 @@ function Copy-New-DLL-To-Temp{
             Write-Host "Engine DLL was not successfully placed in $tempDir" -ForegroundColor Red
         }
 
-        if(Test-Path $tempLegRuleDLL){
+
+    } catch{
+        $ErrorMessage = $Error[0].Exception.Message
+        Write-Host "Date: $((Get-Date).ToString()). Status: Engine.dll Copy to $tempDir Failed - $ErrorMessage" -ForegroundColor Red
+    }
+
+    #copy staged file to temp directory
+    try{
+        Copy-Item $stagedLegacyEngFile  -Destination $tempDir -Force
+
+         if(Test-Path $tempLegRuleDLL){
             try{
                 #Ublock file
                 Unblock-File $tempLegRuleDLL
@@ -112,15 +124,6 @@ function Copy-New-DLL-To-Temp{
         }else{
             Write-Host "McKesson.TPP.LegacyRuleEngine DLL was not successfully placed in $tempDir" -ForegroundColor Red
         }
-
-    } catch{
-        $ErrorMessage = $Error[0].Exception.Message
-        Write-Host "Date: $((Get-Date).ToString()). Status: Engine.dll Copy to $tempDir Failed - $ErrorMessage" -ForegroundColor Red
-    }
-
-    try{
-        #copy staged file to temp directory
-        Copy-Item $stagedLegacyEngFile  -Destination $tempDir -Force
 
         Write-Host "Date: $((Get-Date).ToString()). Status: Engine.dll Successfully copied to $tempDir" -ForegroundColor Green
     } catch{
@@ -223,14 +226,14 @@ foreach($server in $servers){
     $origLegEngPath = "\\$server\D$\CXT\totalpayment\NTHost\McKesson.TPP.LegacyRuleEngine.dll"
     $ootbLegEngPath = "\\$server\D$\CXT\totalpayment\NTHost\McKesson.TPP.LegacyRuleEngine.dll.OOTB"
     $dir = "\\$server\D$\CXT\totalpayment\NTHost"
-    $stagedEngFile = "McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\Engine.dll"
-    $stagedLegacyEngFile = "McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\McKesson.TPP.LegacyRuleEngine.dll"
+    $stagedEngFile = "\\apps\Local\EMT\COTS\McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\Engine.dll"
+    $stagedLegacyEngFile = "\\apps\Local\EMT\COTS\McKesson\ClaimsXten\v6.3\Current_Releases\DLL_Hot_Fixes\Engine.dll Extra Logging\McKesson.TPP.LegacyRuleEngine.dll"
     $tempDir = "\\$server\D$\temp"
 
     if(Test-Path $dir){
         #Calling function to take backups of existing DLLS
         Write-Host "Taking Backup of OOTB Engine &  McKesson.TPP.LegacyRuleEngine DLL files" -ForegroundColor Cyan
-        Make-Backup_of-Existing-DDLS -ootbEngPath $ootbEngPath -ootbLegEngPath $ootbLegEngPath -origLegEngPath $origLegEngPath -origEngPath $origEngPath
+        Make-Backup_of-Existing-DDLS -ootbEngPath $ootbEngPath -ootbLegEngPath $ootbLegEngPath -origLegEngPath $origLegEngPath -origEngPath $origEngPath -dir $dir -tempDir $tempDir
 
         #Calling function to copy the latest staged DLL files to D:\temp on server NOTE: Files can become blocked so if services do not start this could be the reason.
         Write-Host "Taking Backup of OOTB Engine &  McKesson.TPP.LegacyRuleEngine DLL files" -ForegroundColor Cyan
@@ -238,7 +241,7 @@ foreach($server in $servers){
 
         #Calling function to place new Engine.dll
         Write-Host "Placing new Engine &  McKesson.TPP.LegacyRuleEngine DLL files" -ForegroundColor Cyan
-        Copy-New-DLL -dir $dir -server $server
+        Place-New-DLLS-To-Path -dir $dir -tempDir $tempDir
     }
 }
 
